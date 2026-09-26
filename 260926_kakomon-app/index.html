@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <title>応用情報 午前 過去問</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <!-- ホーム -->
+  <section id="home" class="screen" hidden>
+    <h1>応用情報 午前 過去問</h1>
+    <div class="main-actions">
+      <button id="startRandom" class="primary big">ランダム 10問</button>
+      <button id="startReview" class="secondary big">復習する（残り <span id="reviewCount">0</span>問）</button>
+    </div>
+    <dl class="stats">
+      <div><dt>解いた問題</dt><dd><span id="answeredCount">0</span> / <span id="totalCount">0</span>問</dd></div>
+      <div><dt>正答率</dt><dd id="accuracy">—</dd></div>
+      <div><dt>収録</dt><dd id="exams"></dd></div>
+    </dl>
+    <div class="backup">
+      <button id="exportBtn" class="link">履歴を書き出す</button>
+      <span aria-hidden="true">／</span>
+      <button id="importBtn" class="link">読み込む</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+    </div>
+    <p class="source">出典：IPA 応用情報技術者試験 午前 過去問題</p>
+  </section>
+
+  <!-- 出題 -->
+  <section id="quiz" class="screen" hidden>
+    <div class="quiz-header">
+      <span id="progress"></span>
+      <span id="origin" class="origin"></span>
+      <button id="quitBtn" class="link">中断</button>
+    </div>
+    <p id="questionText" class="question"></p>
+    <div id="figures" class="figures"></div>
+    <div id="choices" class="choices"></div>
+    <p id="feedback" class="feedback" hidden></p>
+    <button id="nextBtn" class="primary big" hidden>次へ</button>
+  </section>
+
+  <!-- 結果 -->
+  <section id="result" class="screen" hidden>
+    <h2 id="score" class="score"></h2>
+    <div id="resultList" class="result-list"></div>
+    <div class="result-actions">
+      <button id="againBtn" class="primary big">もう1セット</button>
+      <button id="toReviewBtn" class="secondary big">復習へ</button>
+      <button id="homeBtn" class="link">ホームへ</button>
+    </div>
+  </section>
+
+  <p id="loading" class="loading">読み込み中…</p>
+
+  <!-- 図の拡大表示 -->
+  <div id="zoom" class="zoom" hidden><img id="zoomImg" alt=""></div>
+</body>
+</html>

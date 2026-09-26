@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>書き起こし確認</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f4f4f4; color: #222; }
+    header { position: sticky; top: 0; background: #fff; padding: 8px 16px; border-bottom: 1px solid #ccc; z-index: 1; }
+    header select, header input { font-size: 14px; }
+    .q { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 16px; border-bottom: 2px solid #ccc; }
+    .q.review { background: #fff4d6; }
+    .pages img { width: 100%; border: 1px solid #999; margin-bottom: 4px; background: #fff; }
+    .text { background: #fff; padding: 12px; border: 1px solid #ccc; align-self: start; position: sticky; top: 56px; }
+    .text h2 { margin: 0 0 8px; font-size: 16px; }
+    .question { white-space: pre-wrap; line-height: 1.7; }
+    .text img { max-width: 100%; border: 1px dashed #999; margin: 8px 0; display: block; }
+    .choices { list-style: none; padding: 0; margin: 8px 0 0; }
+    .choices li { padding: 4px 0; line-height: 1.6; }
+    .choices li.answer { background: #d8f5d8; font-weight: bold; }
+    .meta { color: #666; font-size: 13px; margin-top: 8px; }
+    .ov { text-decoration: overline; }
+    .ul { text-decoration: underline; text-underline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <header>
+    <label>回 <select id="exam"></select></label>
+    <label>問 <input id="jump" type="number" min="1" max="80" style="width:4em"></label>
+    <label><input id="onlyReview" type="checkbox"> 要確認のみ</label>
+    <span id="summary"></span>
+  </header>
+  <main id="list"></main>
+
+  <script type="module">
+    // 変換結果の目視確認用ページ（アプリ本体からは使わない）。
+    // 原本のページ画像は tools/build.py が tools/work/<回ID>/plain/ に作る（gitには入れない）。
+    const examSelect = document.getElementById('exam');
+    const list = document.getElementById('list');
+    const onlyReview = document.getElementById('onlyReview');
+
+    const index = await (await fetch('data/index.json')).json();
+    for (const e of index) examSelect.add(new Option(e.label, e.id));
+
+    let questions = [];
+
+    function el(tag, props = {}, children = []) {
+      const node = Object.assign(document.createElement(tag), props);
+      node.append(...children);
+      return node;
+    }
+
+    // 結合上線・結合下線を CSS で描く（app.js の richText と同じ）
+    const MARKS = { '\u0305': 'ov', '\u0332': 'ul' };
+    function richText(text) {
+      const nodes = [];
+      const chars = [...text];
+      let plain = '';
+      for (let i = 0; i < chars.length; i++) {
+        const cls = MARKS[chars[i + 1]];
+        if (!cls) { plain += chars[i]; continue; }
+        nodes.push(plain, el('span', { className: cls, textContent: chars[i] }));
+        plain = '';
+        i += 1;
+      }
+      nodes.push(plain);
+      return nodes;
+    }
+
+    function render() {
+      const examId = examSelect.value;
+      list.replaceChildren();
+      const shown = questions.filter(q => !onlyReview.checked || q.needsReview);
+      document.getElementById('summary').textContent =
+        `${questions.length}問 / 要確認 ${questions.filter(q => q.needsReview).length}問`;
+      for (const q of shown) {
+        const pages = el('div', { className: 'pages' },
+          q.pages.map(p => el('img', { src: `tools/work/${examId}/plain/p${String(p).padStart(2, '0')}.png`, loading: 'lazy' })));
+        const choices = q.choices
+          ? el('ul', { className: 'choices' }, Object.entries(q.choices).map(([k, v]) =>
+              el('li', { className: k === q.answer ? 'answer' : '' }, [`${k}　`, ...richText(v)])))
+          : el('p', { textContent: `選択肢は図の中（正解：${q.answer}）` });
+        const text = el('div', { className: 'text' }, [
+          el('h2', { textContent: `問${q.number}` }),
+          el('div', { className: 'question' }, richText(q.question)),
+          ...q.figures.map(src => el('img', { src })),
+          choices,
+          el('div', { className: 'meta', textContent: `正解 ${q.answer} / ${q.field} / p${q.pages.join(',')}${q.needsReview ? ' / 要確認' : ''}` }),
+        ]);
+        list.append(el('section', { id: `q${q.number}`, className: `q${q.needsReview ? ' review' : ''}` }, [pages, text]));
+      }
+    }
+
+    async function load() {
+      const entry = index.find(e => e.id === examSelect.value);
+      questions = await (await fetch(entry.file)).json();
+      render();
+    }
+
+    examSelect.addEventListener('change', load);
+    onlyReview.addEventListener('change', render);
+    document.getElementById('jump').addEventListener('change', e => {
+      document.getElementById(`q${e.target.value}`)?.scrollIntoView();
+    });
+    await load();
+  </script>
+</body>
+</html>
