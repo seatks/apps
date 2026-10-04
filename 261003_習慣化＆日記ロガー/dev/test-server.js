@@ -1,4 +1,4 @@
-// サーバー側（gas/*.gs）の動作確認。実行：node dev/test-server.js
+// サーバー側（gas/Code.gs）の動作確認。実行：node dev/test-server.js
 'use strict';
 const assert = require('assert');
 const { createGas } = require('./fake-gas');

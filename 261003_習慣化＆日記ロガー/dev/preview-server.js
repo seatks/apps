@@ -1,5 +1,5 @@
 // 画面の確認用サーバー。gas/index.html を配信し、google.script.run の呼び出しを
-// 偽の GAS（fake-gas.js）上の gas/*.gs に中継する。サンプルとして45日分の記録を入れておく。
+// 偽の GAS（fake-gas.js）上の gas/Code.gs に中継する。サンプルとして45日分の記録を入れておく。
 // 実行：node dev/preview-server.js [ポート]  → http://localhost:8080/
 'use strict';
 const http = require('http');

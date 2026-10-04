@@ -8,7 +8,7 @@
 |---|---|
 | 目的 | 毎日の習慣の実施有無とコメント（日記）を記録し、達成率を振り返る |
 | 利用者 | 本人のみ（iPhone の Safari。ホーム画面に追加して起動） |
-| 実行環境 | Google Apps Script（GAS）のWebアプリ。アクセスは「自分のみ」 |
+| 実行環境 | Google Apps Script（GAS）のWebアプリ。アクセスは「自分のみ」。貼り付けを楽にするため、ファイルは Code.gs と index.html の2つだけにする（タイムゾーンはコード内で Asia/Tokyo を指定するので、マニフェスト appsscript.json の編集は不要） |
 | データ | Google スプレッドシート「習慣化ログ_データ」（Drive の「習慣化ログ」フォルダ内） |
 | 出力先 | Google Drive の「習慣化ログ」フォルダ（CSV） |
 | 格納先 | `261003_習慣化＆日記ロガー/` |
@@ -88,13 +88,9 @@ GAS にした理由：「23:59 の確定」と「週次の自動出力」は、�
 ```
 261003_習慣化＆日記ロガー/
   SPEC.md  SETUP.md  log_grillme_261003-1.md
-  gas/                      ← GAS に貼り付けるファイル
-    Code.gs      Webアプリの入口、画面から呼ぶ処理、setup・dailyJob
-    Data.gs      スプレッドシートの読み書き、日の確定
-    Export.gs    CSV出力（週次・手動）
-    Util.gs      日付・CSVなど、Googleのサービスに依存しない処理
+  gas/                      ← GAS に貼り付けるファイル（2つ）
+    Code.gs      サーバー側の処理すべて（1. 入口・画面から呼ぶ処理・setup・dailyJob ／ 2. スプレッドシートの読み書きと日の確定 ／ 3. CSV出力 ／ 4. 日付・CSVの共通処理）
     index.html   画面（CSS・JSを含む1ファイル）
-    appsscript.json  タイムゾーン・Webアプリの設定
   dev/                      ← 手元での確認用（GAS には貼り付けない）
     fake-gas.js        GAS のサービスの簡易な偽物
     test-server.js     サーバー側のテスト（node dev/test-server.js）

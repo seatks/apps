@@ -1,5 +1,5 @@
 // GAS のサービス（SpreadsheetApp, DriveApp など）の簡易な偽物。
-// gas/*.gs を Node で動かして確認するためだけに使う（GAS には貼り付けない）
+// gas/Code.gs を Node で動かして確認するためだけに使う（GAS には貼り付けない）
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -122,9 +122,7 @@ function createGas() {
   };
   vm.createContext(ctx);
   const dir = path.join(__dirname, '..', 'gas');
-  ['Util.gs', 'Data.gs', 'Export.gs', 'Code.gs'].forEach(f => {
-    vm.runInContext(fs.readFileSync(path.join(dir, f), 'utf8'), ctx, { filename: f });
-  });
+  vm.runInContext(fs.readFileSync(path.join(dir, 'Code.gs'), 'utf8'), ctx, { filename: 'Code.gs' });
 
   // 画面からの呼び出し（google.script.run）と同じく、戻り値をJSONで受け渡す
   const api = new Proxy(ctx, {
